@@ -1,23 +1,18 @@
 {
-  "name": "@repo/ui",
+  "name": "@repo/feature-a",
   "version": "0.0.0",
-  "sideEffects": [
-    "**/*.css"
-  ],
   "files": [
     "dist"
   ],
   "exports": {
     "./styles.css": "./dist/index.css",
-    "./*": "./dist/*.js"
+    "./*": "./src/*.tsx"
   },
   "license": "MIT",
   "scripts": {
     "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
-    "build:components": "tsc",
     "check-types": "tsc --noEmit",
-    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
-    "dev:components": "tsc --watch"
+    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch"
   },
   "peerDependencies": {
     "react": "^19"

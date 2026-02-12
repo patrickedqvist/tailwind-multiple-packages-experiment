@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export function Card({
   title,
@@ -22,9 +22,7 @@ export function Card({
           -&gt;
         </span>
       </h2>
-      <p className="ui:m-0 ui:max-w-[30ch] ui:text-sm ui:opacity-50">
-        {children}
-      </p>
+      <p className="ui:m-0 ui:max-w-[30ch] ui:text-sm ui:opacity-50">{children}</p>
     </a>
   );
 }
