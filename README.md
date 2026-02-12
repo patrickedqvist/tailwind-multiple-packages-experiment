@@ -1,58 +1,71 @@
-# Turborepo Tailwind CSS starter
+# Tailwind CSS Multi-Package Monorepo Experiment
 
-This Turborepo starter is maintained by the Turborepo core team.
+This repo explores how Tailwind CSS v4 behaves in a Turborepo monorepo where **multiple packages each build their own CSS independently**. The goal is to understand the CSS duplication that occurs when each package runs its own Tailwind build and the final output is bundled together by a Next.js app.
 
-## Using this example
+## Structure
 
-Run the following command:
+```
+apps/
+  web/              → Next.js 16 app (output: standalone)
+packages/
+  ui/               → Shared component library (Card, Gradient, TurborepoLogo)
+  tailwind-config/  → Shared Tailwind theme and PostCSS config
+  typescript-config/ → Shared TypeScript configs
+features/
+  feature-a/        → Feature package (Badge, Banner components)
+  feature-b/        → Feature package (Badge, Banner components)
+```
+
+### `@repo/tailwind-config`
+
+Central package that exports:
+- `shared-styles.css` — imports `tailwindcss` and defines custom theme tokens (`blue-1000`, `purple-1000`, `red-1000`)
+- `postcss.config.js` — shared PostCSS config with `@tailwindcss/postcss`
+
+### `@repo/ui`
+
+Component library. Has its own `src/styles.css` that imports Tailwind + the shared config. Builds CSS independently via `@tailwindcss/cli` to `dist/`. Components import the compiled CSS using the `#styles` import alias.
+
+### `features/feature-a` and `features/feature-b`
+
+Feature packages following the same pattern as `@repo/ui` — each has its own Tailwind build that produces a separate CSS bundle in `dist/`.
+
+### `apps/web`
+
+Next.js app that consumes all packages. Has its own `globals.css` that also imports Tailwind + the shared config, processed via PostCSS. Uses `output: "standalone"` for production deployment.
+
+## The Problem
+
+Each package (`ui`, `feature-a`, `feature-b`) and the web app all run independent Tailwind builds. Every build emits the full Tailwind boilerplate:
+
+- `@layer base` (preflight/reset) — ~16.5 KB each
+- `@layer theme` (CSS custom properties) — ~3 KB each
+- `@layer properties` (`@property` declarations) — ~3.4 KB each
+
+When Next.js bundles everything into a single CSS file, this boilerplate is duplicated 3x. In the built output:
+
+| | Size |
+|---|---|
+| Total CSS file | ~80 KB |
+| Duplicated boilerplate | ~46 KB (56%) |
+| Unique utility classes | ~12.5 KB |
+| If deduplicated | ~35 KB |
+
+## Scripts
 
 ```sh
-npx create-turbo@latest -e with-tailwind
+pnpm dev        # Start all dev servers
+pnpm build      # Build all packages and the web app
+pnpm clean      # Remove all build artifacts and node_modules
+pnpm lint       # Lint with Biome
+pnpm check-types # Type-check all packages
 ```
 
-## What's inside?
+## Tech Stack
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `web`: another [Next.js](https://nextjs.org/) app with [Tailwind CSS](https://tailwindcss.com/)
-- `ui`: a stub React component library with [Tailwind CSS](https://tailwindcss.com/) shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Building packages/ui
-
-This example is set up to produce compiled styles for `ui` components into the `dist` directory. The component `.tsx` files are consumed by the Next.js apps directly using `transpilePackages` in `next.config.ts`. This was chosen for several reasons:
-
-- Make sharing one `tailwind.config.ts` to apps and packages as easy as possible.
-- Make package compilation simple by only depending on the Next.js Compiler and `tailwindcss`.
-- Ensure Tailwind classes do not overwrite each other. The `ui` package uses a `ui-` prefix for it's classes.
-- Maintain clear package export boundaries.
-
-Another option is to consume `packages/ui` directly from source without building. If using this option, you will need to update the `tailwind.config.ts` in your apps to be aware of your package locations, so it can find all usages of the `tailwindcss` class names for CSS compilation.
-
-For example, in [tailwind.config.ts](packages/tailwind-config/tailwind.config.ts):
-
-```js
-  content: [
-    // app content
-    `src/**/*.{js,ts,jsx,tsx}`,
-    // include packages if not transpiling
-    "../../packages/ui/*.{js,ts,jsx,tsx}",
-  ],
-```
-
-If you choose this strategy, you can remove the `tailwindcss` and `autoprefixer` dependencies from the `ui` package.
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [Tailwind CSS](https://tailwindcss.com/) for styles
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- Turborepo
+- pnpm workspaces
+- Next.js 16
+- Tailwind CSS v4
+- TypeScript
+- Biome
