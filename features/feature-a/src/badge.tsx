@@ -1,3 +1,5 @@
+import "#styles";
+
 export function FeatureABadge({
   label,
   variant = "default",

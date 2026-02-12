@@ -2,6 +2,7 @@
   "name": "tailwind-multiple-packages",
   "private": true,
   "scripts": {
+    "clean": "turbo run clean && rm -rf node_modules .turbo",
     "build": "turbo run build",
     "start": "turbo run start",
     "dev": "turbo run dev",
