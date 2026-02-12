@@ -51,13 +51,70 @@ When Next.js bundles everything into a single CSS file, this boilerplate is dupl
 | Unique utility classes | ~12.5 KB |
 | If deduplicated | ~35 KB |
 
+## CSS Analysis
+
+After building (`pnpm build`), you can run `pnpm analyze-css` to get a detailed report on the combined CSS output using [`@projectwallace/css-analyzer`](https://github.com/projectwallace/css-analyzer). Use `pnpm analyze-css --json` for the full raw data.
+
+Current results:
+
+```
+Found 2 CSS file(s):
+  c38a0d10d4e64d54.css (12.7 KB)
+  df206b99cb7c0b33.css (28.7 KB)
+Combined size: 41.4 KB
+
+============================================================
+CSS ANALYSIS REPORT
+============================================================
+
+Stylesheet
+----------------------------------------
+  Size:               42,435 bytes
+  Lines of code:      7
+  Source lines:       1797
+  Comments:           0
+
+Rules
+----------------------------------------
+  Total:              423
+  Empty:              0 (0.0%)
+
+Selectors
+----------------------------------------
+  Total:              559
+  Unique:             200
+  Uniqueness ratio:   35.8%
+  Specificity (max):  [0,2,0]
+  Specificity (mean): [0.0,0.3,0.7]
+  Complexity (max):   11
+  Complexity (mean):  1.4
+
+Declarations
+----------------------------------------
+  Total:              1089
+  Unique:             344 (31.6%)
+  !important:         4 (0.4%)
+
+Duplication
+----------------------------------------
+                    Total  Unique   Dupl.   Ratio
+  Selectors           559     200     359   64.2%
+  Declarations       1089     344     745   68.4%
+  At-rules            149       5     144   96.6%
+                  -------------------------------
+  Total              1797     549    1248   69.4%
+```
+
+The duplication table shows the key bloat indicators: 69.4% of selectors, declarations, and at-rules are duplicated due to each package emitting its own copy of the Tailwind preflight, theme, and `@property` declarations.
+
 ## Scripts
 
 ```sh
-pnpm dev        # Start all dev servers
-pnpm build      # Build all packages and the web app
-pnpm clean      # Remove all build artifacts and node_modules
-pnpm lint       # Lint with Biome
+pnpm dev         # Start all dev servers
+pnpm build       # Build all packages and the web app
+pnpm clean       # Remove all build artifacts and node_modules
+pnpm analyze-css # Analyze the combined CSS output for duplication
+pnpm lint        # Lint with Biome
 pnpm check-types # Type-check all packages
 ```
 
