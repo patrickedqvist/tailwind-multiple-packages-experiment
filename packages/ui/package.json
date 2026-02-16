@@ -9,20 +9,18 @@
   ],
   "exports": {
     "./styles.css": "./dist/index.css",
-    "./*": "./dist/*.js"
+    "./*": "./src/*.tsx"
   },
   "imports": {
     "#styles": "./dist/ui-styles.css"
   },
   "license": "MIT",
   "scripts": {
-    "build": "tsc && tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build": "pnpm run build:styles",
     "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
-    "build:components": "tsc",
     "clean": "rm -rf dist node_modules .turbo",
     "check-types": "tsc --noEmit",
-    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch",
-    "dev:components": "tsc --watch"
+    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch"
   },
   "peerDependencies": {
     "react": "^19"

@@ -13,7 +13,7 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build": "pnpm run build:styles",
     "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "clean": "rm -rf dist node_modules .turbo",
     "check-types": "tsc --noEmit",
