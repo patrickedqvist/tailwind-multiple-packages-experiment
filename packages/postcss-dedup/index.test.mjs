@@ -205,6 +205,79 @@ describe("postcss-dedup", () => {
     assert.equal(matches?.length, 1);
   });
 
+  // Declaration-level dedup tests
+  it("removes duplicate declarations from same-selector rules in same context", async () => {
+    const input = `
+      .a { color: red; margin: 0; }
+      .a { color: red; padding: 10px; }
+    `;
+    const output = await run(input);
+    // First rule keeps all its decls
+    assert.ok(norm(output).includes("color: red"));
+    assert.ok(norm(output).includes("margin: 0"));
+    assert.ok(norm(output).includes("padding: 10px"));
+    // color: red should appear only once
+    const colorMatches = output.match(/color:\s*red/g);
+    assert.equal(colorMatches?.length, 1);
+  });
+
+  it("removes duplicate declarations across same-selector rules inside @layer", async () => {
+    const input = `
+      @layer properties {
+        @supports (display: grid) {
+          *, :before, :after { --tw-border-style: solid; --tw-shadow: 0 0 #0000; }
+        }
+      }
+      @layer properties {
+        @supports (display: grid) {
+          *, :before, :after { --tw-border-style: solid; --tw-blur: initial; }
+        }
+      }
+    `;
+    const output = await run(input);
+    // --tw-border-style should appear only once
+    const borderMatches = output.match(/--tw-border-style/g);
+    assert.equal(borderMatches?.length, 1);
+    // Both unique declarations should remain
+    assert.ok(output.includes("--tw-shadow"));
+    assert.ok(output.includes("--tw-blur"));
+  });
+
+  it("does NOT remove declarations across different selectors", async () => {
+    const input = `
+      .a { color: red; }
+      .b { color: red; }
+    `;
+    const output = await run(input);
+    const colorMatches = output.match(/color:\s*red/g);
+    assert.equal(colorMatches?.length, 2);
+  });
+
+  it("does NOT remove declarations across different contexts", async () => {
+    const input = `
+      @layer base {
+        .a { color: red; margin: 0; }
+      }
+      @layer utilities {
+        .a { color: red; padding: 10px; }
+      }
+    `;
+    const output = await run(input);
+    const colorMatches = output.match(/color:\s*red/g);
+    assert.equal(colorMatches?.length, 2);
+  });
+
+  it("removes rule entirely if all declarations are duplicates", async () => {
+    const input = `
+      .a { color: red; margin: 0; }
+      .a { color: red; }
+    `;
+    const output = await run(input);
+    // Second rule should be removed entirely (all its decls are dupes)
+    const ruleMatches = output.match(/\.a\s*\{/g);
+    assert.equal(ruleMatches?.length, 1);
+  });
+
   it("preserves non-duplicated rules", async () => {
     const input = `
       .a { color: red; }
