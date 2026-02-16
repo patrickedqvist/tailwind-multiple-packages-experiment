@@ -1,3 +1,5 @@
 /* Component-level styles for the feature-b package */
-@import "tailwindcss";
-@import "@repo/tailwind-config";
+/* Use @reference for theme access without emitting base/theme layers */
+@import "tailwindcss/utilities";
+@reference "tailwindcss/theme";
+@reference "@repo/tailwind-config";
