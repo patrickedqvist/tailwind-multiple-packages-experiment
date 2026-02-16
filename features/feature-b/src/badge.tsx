@@ -1,4 +1,3 @@
-import "#styles";
 
 export function FeatureBBadge({
   label,

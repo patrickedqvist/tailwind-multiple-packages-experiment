@@ -1,21 +1,13 @@
 {
   "name": "@repo/feature-b",
   "version": "0.0.0",
-  "files": [
-    "dist"
-  ],
   "exports": {
     "./*": "./src/*.tsx"
   },
-  "imports": {
-    "#styles": "./dist/feature-b-styles.css"
-  },
   "license": "MIT",
   "scripts": {
-    "clean": "rm -rf dist node_modules .turbo",
-    "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/feature-b-styles.css",
-    "check-types": "tsc --noEmit",
-    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/feature-b-styles.css --watch"
+    "clean": "rm -rf node_modules .turbo",
+    "check-types": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^19"

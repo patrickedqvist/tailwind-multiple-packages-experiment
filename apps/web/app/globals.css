@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "@repo/tailwind-config";
 
+@source "../../packages/ui/src";
+@source "../../features/feature-a/src";
+@source "../../features/feature-b/src";
+
 :root {
     --foreground-rgb: 0, 0, 0;
     --background-start-rgb: 214, 219, 220;

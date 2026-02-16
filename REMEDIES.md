@@ -49,15 +49,14 @@ Remedy A achieves this because:
 
 ### Measured Impact
 
-_To be measured after implementation on a separate branch._
-
 | Metric | Baseline | Remedy A | Change |
 |---|---|---|---|
-| Combined CSS size | 41.4 KB | | |
-| Duplicated selectors | 64.2% | | |
-| Duplicated declarations | 68.4% | | |
-| Duplicated at-rules | 96.6% | | |
-| Overall structural duplication | 69.4% | | |
+| Combined CSS size | 41.4 KB | 12.7 KB | **-69.3%** |
+| Selectors (total) | 564 | 172 | -69.5% |
+| Duplicated selectors | 64.2% | 12.8% | -51.4 pp |
+| Duplicated declarations | 68.4% | 32.1% | -36.3 pp |
+| Duplicated at-rules | 96.6% | 90.4% | -6.2 pp |
+| Overall structural duplication | 69.4% | 31.6% | -37.8 pp |
 
 ### Trade-offs
 
@@ -68,4 +67,4 @@ _To be measured after implementation on a separate branch._
 
 ### Implementation
 
-_Branch link to be added._
+Branch: `remedy-a`
