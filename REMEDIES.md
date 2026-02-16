@@ -144,3 +144,70 @@ The declaration-level dedup pass handles the case where same-selector rules in t
 ### Implementation
 
 Branch: `remedy-b`
+
+---
+
+## Remedy C: @reference for Utilities-Only Package Builds
+
+### Approach
+
+Replace `@import "tailwindcss"` in feature and UI packages with `@import "tailwindcss/utilities"` combined with `@reference "tailwindcss/theme"` and `@reference "@repo/tailwind-config"`. The app's `globals.css` keeps the full `@import "tailwindcss"` to provide the base, theme, and preflight layers once.
+
+```css
+/* features/feature-a/src/styles.css (and all other packages) */
+@import "tailwindcss/utilities";
+@reference "tailwindcss/theme";
+@reference "@repo/tailwind-config";
+```
+
+```css
+/* apps/web/app/globals.css (unchanged) */
+@import "tailwindcss";
+@import "@repo/tailwind-config";
+```
+
+The `@reference` directive gives the Tailwind CLI access to theme tokens and custom config values for resolving utility classes, but emits no CSS for those imports. Only the utility classes actually used by each package's components are emitted, along with their required `@property` declarations.
+
+### Why This Remedy
+
+- **Minimal change.** Each package's `styles.css` changes from one line to three lines. Everything else — `build:styles` scripts, `#styles` imports, package exports, turbo config — stays exactly the same.
+- **Packages stay independent.** Each package still compiles its own CSS bundle and can be developed, tested, and previewed in isolation.
+- **Eliminates the largest source of duplication.** The preflight (`@layer base`) and theme (`@layer theme`) layers are the biggest duplicated blocks across packages. With `@reference`, packages no longer emit them.
+- **Theme values are inlined as fallbacks.** Utility classes use `var(--color-blue-100, #dbeafe)` instead of `var(--color-blue-100)`. This means styles work even if the theme variables aren't loaded, making each package's CSS more self-contained.
+
+### Measured Impact
+
+**Package-level CSS output (per-package build):**
+
+| Package | Baseline | Remedy C | Change |
+|---|---|---|---|
+| feature-a | 13.2 KB | 4.3 KB | -67% |
+| feature-b | 13.2 KB | 4.3 KB | -67% |
+| ui | 13.2 KB | 7.3 KB | -45% |
+| **Package total** | **39.6 KB** | **15.9 KB** | **-60%** |
+
+**Final CSS chunks (shipped to browser):**
+
+| Chunk | Baseline | Remedy C | Change |
+|---|---|---|---|
+| Chunk 1 (feature/ui utilities) | 28.7 KB | 13.8 KB | -51.9% |
+| Chunk 2 (app styles) | 12.7 KB | 12.7 KB | unchanged |
+| **Total** | **41.4 KB** | **26.6 KB** | **-35.7%** |
+
+### What Remains
+
+The remaining CSS in the feature/UI chunk consists of:
+
+1. **Utility classes.** The actual classes used by components — these are unique per-package and cannot be deduplicated.
+2. **`@property` declarations.** Each package emits the `@property` fallbacks needed by its utilities (e.g. `--tw-border-style`, `--tw-shadow`). These overlap across packages and could be further reduced by combining Remedy C with Remedy B's post-build dedup.
+3. **`@layer properties` fallback blocks.** The `@supports` wrapper with wildcard selector for browsers that don't support `@property`. Same overlap as above.
+
+### Trade-offs
+
+- **Theme values are baked in at build time.** Because `@reference` inlines theme values as CSS fallbacks (`var(--spacing, 0.25rem)`), runtime theme changes via CSS custom properties won't affect these fallback values. If the app defines `--spacing: 0.5rem`, utilities will use it — but if the variable isn't set at all, the fallback kicks in with the build-time value.
+- **No preflight in package CSS.** Packages' compiled CSS does not include Tailwind's CSS reset. This is fine when consumed by an app that provides it via `globals.css`, but means the package CSS can't stand alone as a complete stylesheet.
+- **Each package still emits `@property` declarations.** These duplicate across packages. Combining with Remedy B would eliminate this remaining duplication.
+
+### Implementation
+
+Branch: `remedy-c`
