@@ -5,6 +5,7 @@
     "dist"
   ],
   "exports": {
+    "./styles.css": "./dist/index.css",
     "./*": "./src/*.tsx"
   },
   "imports": {
@@ -12,10 +13,11 @@
   },
   "license": "MIT",
   "scripts": {
+    "build": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
+    "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css",
     "clean": "rm -rf dist node_modules .turbo",
-    "build:styles": "tailwindcss -i ./src/styles.css -o ./dist/feature-b-styles.css",
     "check-types": "tsc --noEmit",
-    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/feature-b-styles.css --watch"
+    "dev:styles": "tailwindcss -i ./src/styles.css -o ./dist/index.css --watch"
   },
   "peerDependencies": {
     "react": "^19"

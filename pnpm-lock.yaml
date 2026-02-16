@@ -42,6 +42,9 @@ importers:
         specifier: ^19.1.0
         version: 19.2.4(react@19.2.4)
     devDependencies:
+      '@repo/postcss-dedup':
+        specifier: workspace:*
+        version: link:../../packages/postcss-dedup
       '@repo/tailwind-config':
         specifier: workspace:*
         version: link:../../packages/tailwind-config
@@ -122,6 +125,12 @@ importers:
       typescript:
         specifier: 5.9.2
         version: 5.9.2
+
+  packages/postcss-dedup:
+    dependencies:
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.6
 
   packages/tailwind-config:
     devDependencies:

@@ -1,0 +1,18 @@
+{
+  "name": "@repo/postcss-dedup",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "bin": {
+    "postcss-dedup": "./cli.mjs"
+  },
+  "scripts": {
+    "test": "node --test index.test.mjs"
+  },
+  "dependencies": {
+    "postcss": "^8.5.3"
+  }
+}
